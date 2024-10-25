@@ -8,10 +8,13 @@ import { motion } from "framer-motion";
 import { CgDarkMode } from "react-icons/cg";
 import { MdMenu, MdClose } from "react-icons/md";
 import { FaOpencart } from "react-icons/fa";
+import { useRecoilState } from "recoil";
+import { isOnState } from "../state";
 
-const Header = ({ isOn, setIsOn }) => {
+const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
   const toggleMenu = () => setMenuOpened(!menuOpened);
+  const [isOn, setIsOn] = useRecoilState(isOnState);
   const toggleSwitch = () => setIsOn(!isOn);
   return (
     <>

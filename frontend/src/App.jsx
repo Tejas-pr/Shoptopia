@@ -10,42 +10,47 @@ import { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Toppage from "./pages/Toppage";
 import NotFound from "./components/NotFound";
+import { useRecoilState } from "recoil";
+import { isOnState } from "./state";
 
 function App() {
-  const [isOn, setIsOn] = useState(true);
   const [showToppage, setToppage] = useState(true);
+  const [isOn, setIsOn] = useRecoilState(isOnState);
 
   useEffect(() => {
     const hasVisited = localStorage.getItem("hasVisited");
 
-    if(hasVisited){
+    if (hasVisited) {
       setToppage(false);
-    }else{
+    } else {
       setToppage(true);
     }
   }, []);
+
   return (
     <>
-      {showToppage && <Toppage setToppage={setToppage}/>}
-      {/* {!showToppage && <main className={`${isOn ? "dark" : "bg-white"}`}> */}
-      {<main className={`${isOn ? "dark" : "bg-white"}`}>
-        <BrowserRouter>
-          <Header isOn={isOn} setIsOn={setIsOn}/>
-          <Routes >
-            <Route path="/" element={<Home/>} />
-            <Route path="/mens" element={<Category/>} />
-            <Route path="/womens" element={<Category/>} />
-            <Route path="/kids" element={<Category/>} />
-            <Route path="/product" element={<Product/>} > 
-              <Route path=":productId" element={<Product/>}/>
-            </Route>
-            <Route path="/cart-page" element={<Cart/>} />
-            <Route path="/login" element={<Login/>} />
-            <Route path="/*" element={<NotFound/>} /> 
-          </Routes>
-          <Footer />
-        </BrowserRouter>
-      </main>}
+      {!showToppage ? ( // remember to change here
+        <Toppage setToppage={setToppage} />
+      ) : (
+        <main className={`${isOn ? "dark" : "bg-white"}`}>
+          <BrowserRouter>
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/mens" element={<Category />} />
+              <Route path="/womens" element={<Category />} />
+              <Route path="/kids" element={<Category />} />
+              <Route path="/product" element={<Product />}>
+                <Route path=":productId" element={<Product />} />
+              </Route>
+              <Route path="/cart-page" element={<Cart />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/*" element={<NotFound />} />
+            </Routes>
+            <Footer />
+          </BrowserRouter>
+        </main>
+      )}
     </>
   );
 }
