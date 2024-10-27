@@ -5,7 +5,7 @@ import { FOOTER_CONTACT_INFO, FOOTER_LINKS, SOCIALS } from "../assets/data";
 const Footer = () => {
   return (
     <>
-      <footer className="flexCenter pb-24 pt-28 dark:bg-black text-white">
+      <footer className="flexCenter pb-24 pt-28 dark:bg-[#1E201E] text-white">
         <div className="max_padd_container flex w-full flex-col gap-14">
           <div className="flex flex-col items-start justify-center gap-[10%] md:flex-row">
             <Link to={"/"} className="mb-10 bold-20 text-black dark:text-white" >Shoptopia</Link>

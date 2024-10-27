@@ -10,7 +10,7 @@ const Toppage = ({ setToppage }) => {
 
       t1.from("#intro-slider", {
         xPercent: "-100",
-        duration: 1.3,
+        duration: 0.5,
         delay: 0.3,
       })
         .from(["#title-1", "#title-2", "#title-3"], {
@@ -26,19 +26,19 @@ const Toppage = ({ setToppage }) => {
         })
         .to("#intro-slider", {
           xPercent: "-100",
-          duration: 1.3,
+          duration: 0.7,
         })
         .from("#welcome", {
           opacity: 0,
-          duration: 0.5,
+          duration: 0.2,
         })
         .to("#welcome", {
-          delay: 0.5,
-          duration: 1,
+          delay: 0.3,
+          duration: 0.2,
         })
         .to("#intro-slider", { 
           opacity: 0,
-          duration: 1, 
+          duration: 0.5, 
           onComplete: () => {
             setToppage(false);
           },
