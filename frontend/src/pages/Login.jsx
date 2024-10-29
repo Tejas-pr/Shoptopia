@@ -4,11 +4,17 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [state, setState] = useState("Sign Up");
+  const [error, setError] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     email: "",
   });
+
+  const handleCheckboxChange = (event) => {
+    setIsChecked(event.target.checked);
+  };
 
   const changeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +30,7 @@ const Login = () => {
 
   const SignUpHandler = async () => {
     try {
+      console.log("inside handler signup")
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/v1/signup`,
         {
@@ -35,7 +42,8 @@ const Login = () => {
           body: JSON.stringify(formData),
         }
       );
-
+      console.log("inside handler signup11")
+      console.log(response)
       const responseData = await response.json();
 
       if (responseData.success) {
@@ -44,8 +52,15 @@ const Login = () => {
         window.location.replace("/");
       } else {
         const errorMessage = responseData.message || "An error occurred";
-        toast.error(errorMessage);
-        alert(errorMessage);
+
+        if (errorMessage) {
+          setError("Invalid Formates");
+          toast.error("Username: Must be 3-20 characters.");
+          toast.error("Email must be valid ");
+          toast.error(
+            "Password must include at least 1 uppercase,lowercase, special character."
+          );
+        }
 
         if (responseData.errors) {
           toast.error(responseData.errors);
@@ -79,8 +94,8 @@ const Login = () => {
         window.location.replace("/");
       } else {
         const errorMessage = responseData.message || "An error occurred";
-        toast.error(errorMessage);
-        alert(errorMessage);
+        toast.error("Please provide valid credentials");
+        // toast.error(errorMessage);
 
         if (responseData.errors) {
           toast.error(responseData.errors);
@@ -94,7 +109,7 @@ const Login = () => {
 
   return (
     <>
-      <ToastContainer autoClose={1200} />
+      <ToastContainer autoClose={5000} />
       <section className="mx-auto px-6 lg:px-20; flexCenter flex-col pt-32 dark:bg-[#1E201E]">
         <div className="max-w-[555px] h-[600px] rounded-md bg-white m-auto px-14 py-10 dark:bg-[#1E201E] dark:text-white dark:shadow dark:shadow-white">
           <form action="" onSubmit={(e) => e.preventDefault()}>
@@ -129,14 +144,37 @@ const Login = () => {
                 className="h-14 w-full pl-5 bg-slate-900/5 outline-none rounded-xl dark:ring-1 ring-slate-500"
               />
             </div>
-            <button
-              onClick={() => {
-                state === "Sign Up" ? SignUpHandler() : LoginHandler();
-              }}
-              className="btn_dark_rounded my-5 w-full dark:bg-white dark:text-black"
-            >
-              Continue
-            </button>
+            {error && (
+              <div className="mb-4">
+                <p className="text-red-800">*{error}</p>
+              </div>
+            )}
+            <div className="flexCenter mt-6 gap-3">
+              <input
+                type="checkbox"
+                className="w-6 h-6"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+              />
+              <p>
+                By continuing, I agree to Shoptopia's Terms of Service & Privacy
+                Policy.
+              </p>
+            </div>
+            {isChecked ? (
+              <button
+                onClick={() => {
+                  state === "Sign Up" ? SignUpHandler() : LoginHandler();
+                }}
+                className="btn_dark_rounded my-5 w-full dark:bg-white dark:text-black"
+              >
+                Continue
+              </button>
+            ) : (
+              <button className="btn_dark_rounded my-5 w-full dark:bg-white dark:text-black">
+                Agree to continue!
+              </button>
+            )}
             <p className="text-black font-bold dark:text-white">
               {state === "Sign Up"
                 ? "Already have an account?"
@@ -148,13 +186,6 @@ const Login = () => {
                 {state === "Sign Up" ? "Login" : "Sign Up"}
               </span>
             </p>
-            <div className="flexCenter mt-6 gap-3">
-              <input type="checkbox" className="w-6 h-4" />
-              <p>
-                By continuing, I agree to Shoptopia's Terms of Service & Privacy
-                Policy.
-              </p>
-            </div>
           </form>
         </div>
       </section>

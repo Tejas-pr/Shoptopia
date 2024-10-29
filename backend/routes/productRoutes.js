@@ -6,6 +6,23 @@ const multer = require("multer");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const authFetchUser = require("../middleware/authMiddleware");
+const { z } = require("zod");
+const bcrypt = require("bcrypt");
+
+const userSchema = z.object({
+  username: z.string().min(3).max(20),
+  email: z.string().email().min(3).max(30),
+  password: z.string().min(3).max(10)
+  .refine((val) => /[a-z]/.test(val), {
+    message: "Password must contain at least one lowercase letter.",
+  })
+  .refine((val) => /[A-Z]/.test(val), {
+    message: "Password must contain at least one uppercase letter.",
+  })
+  .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
+    message: "Password must contain at least one special character.",
+  }),
+});
 
 router.use("/images", express.static(path.join(__dirname, "uploads/images")));
 // Set up the image storage engine
@@ -87,7 +104,27 @@ router.get("/all-products", async (req, res) => {
 // User Register
 router.post("/signup", async (req, res) => {
   try {
-    const userInDb = await User.findOne({ email: req.body.email });
+    const { username, email, password } = req.body;
+    const parsedData = userSchema.safeParse({
+      username,
+      email,
+      password,
+    });
+
+    if (!parsedData.success) {
+      const errorMessage = parsedData.error;
+      return res.status(400).json({ success: false, message: errorMessage });
+    }
+    const {
+      username: validUsername,
+      email: validEmail,
+      password: validPassword,
+    } = parsedData.data;
+
+    const saltValue = Number(process.env.SALT_ROUNDS) || 5;
+    const hashPass = await bcrypt.hash(validPassword, saltValue);
+
+    const userInDb = await User.findOne({ email: validEmail });
     if (userInDb) {
       return res
         .status(400)
@@ -97,10 +134,11 @@ router.post("/signup", async (req, res) => {
     for (let i = 0; i < 300; i++) {
       cart[i] = 0;
     }
+
     const user = new User({
-      name: req.body.username,
-      email: req.body.email,
-      password: req.body.password,
+      name: validUsername,
+      email: validEmail,
+      password: hashPass,
       cartData: cart,
     });
     await user.save();
@@ -110,7 +148,9 @@ router.post("/signup", async (req, res) => {
         id: user.id,
       },
     };
-    const token = jwt.sign(data, process.env.JWT_SECRET);
+    const token = jwt.sign(data, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
     res.json({ success: true, token: token });
   } catch (error) {
     res.status(500).json({
@@ -123,20 +163,23 @@ router.post("/signup", async (req, res) => {
 // User Login
 router.post("/login", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
     if (!user) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
-    const passMatch = req.body.password === user.password;
-    if (passMatch) {
+    const validPass = bcrypt.compare(password, user.password);
+    if (validPass) {
       const data = {
         user: {
           id: user.id,
         },
       };
-      const token = jwt.sign(data, process.env.JWT_SECRET);
+      const token = jwt.sign(data, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
       res.json({ success: true, token: token });
     } else {
       res.status(400).json({ success: false, message: "Invalid credentials" });
@@ -154,7 +197,6 @@ router.get("/newcollection", async (req, res) => {
   try {
     const product = await Product.find({});
     const newcollection = product.slice(1).slice(-8);
-    // console.log(newcollection);
     res.send(newcollection);
   } catch (e) {
     res.status(500).json({
@@ -222,7 +264,6 @@ router.post("/removefromcart", authFetchUser, async (req, res) => {
 // get cart data
 router.post("/getcart", authFetchUser, async (req, res) => {
   try {
-    console.log("get cart");
     const userData = await User.findOne({ _id: req.user.id });
     return res.json(userData.cartData);
   } catch (e) {
