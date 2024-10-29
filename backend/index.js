@@ -27,4 +27,4 @@ mongoose
     process.exit(1);
   });
 
-app.use("/", productRoutes);
+app.use("/v1/", productRoutes);

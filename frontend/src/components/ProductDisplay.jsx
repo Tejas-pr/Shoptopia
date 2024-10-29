@@ -1,8 +1,4 @@
 import { useContext } from "react";
-import Product_rt_1 from "../assets/product_rt_1.png";
-import Product_rt_2 from "../assets/product_rt_2.png";
-import Product_rt_3 from "../assets/product_rt_3.png";
-import Product_rt_4 from "../assets/product_rt_4.png";
 import { MdStar } from "react-icons/md";
 import { ShopContext } from "../context/ShapContext";
 const ProductDisplay = ({ product }) => {
@@ -15,28 +11,28 @@ const ProductDisplay = ({ product }) => {
           <div className="flex gap-x-2 xl:flex-1">
             <div className="flex flex-col gap-[7px] flex-wrap">
               <img
-                src={Product_rt_1}
+                src={product.image}
                 alt="productImg"
                 className="max-h-[99px]"
               />
               <img
-                src={Product_rt_2}
+                src={product.image}
                 alt="productImg"
                 className="max-h-[99px]"
               />
               <img
-                src={Product_rt_3}
+                src={product.image}
                 alt="productImg"
                 className="max-h-[99px]"
               />
               <img
-                src={Product_rt_4}
+                src={product.image}
                 alt="productImg"
                 className="max-h-[99px]"
               />
             </div>
             <div>
-              <img src={product.image} alt="" />
+              <img src={product.image} alt="main image" />
             </div>
           </div>
           {/* right side  */}

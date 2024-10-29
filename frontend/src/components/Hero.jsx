@@ -28,7 +28,7 @@ const Hero = () => {
             initial="hidden"
             animate="visibility"
             transition={{ duration: 0.5, delay: 0.8 }}
-          className="text-gray-50 regular-16 mt-6 max-w-[33rem]">
+          className="text-slate-600 regular-16 mt-6 max-w-[33rem]">
             Step into a world of fashion tailored just for you. From timeless
             essentials to the latest trends, explore a curated collection that
             celebrates every style and occasion. Elevate your wardrobe

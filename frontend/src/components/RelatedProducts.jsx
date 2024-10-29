@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { POPULAR } from "../assets/data";
 
 const RelatedProducts = () => {
+  const [Popular, setPopular] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/v1/popular-products`)
+      .then((res) => res.json())
+      .then((data) => setPopular(data));
+  }, [])
   return (
     <>
       <section className="bg-[#FAF7F0] dark:bg-[#1E201E] dark:text-white">
@@ -11,7 +17,7 @@ const RelatedProducts = () => {
           <hr className="h-[3px] w-full md:w-1/2 mx-auto bg-gradient-to-l from-transparent via-black to-transparent dark:via-white mb-16" />
           {/* container */}
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {POPULAR.map((item) => (
+            {Popular.map((item) => (
               <Item
                 key={item.id}
                 id={item.id}

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import LogoNav from "../assets/LOGO.png";
-import logout from "../assets/logout.svg";
 import user from "../assets/user.svg";
 import Navbar from "./Navbar";
 import { motion } from "framer-motion";
@@ -76,16 +75,33 @@ const Header = () => {
                     {getTotalCartItems()}
                   </span>
                 </NavLink>
-                <NavLink
-                  to={"login"}
-                  className={
-                    "px-5 py-2 bg-secondary rounded-full text-center flex items-center gap-x-0 md:btn_secondary_rounded"
-                  }
-                >
-                  <img src={user} alt="userIcon" height={15} width={15} />
-                  Login
-                </NavLink>
-                {/* Dark mode beside login */}
+
+                {localStorage.getItem("auth_token") ? (
+                  <NavLink
+                    onClick={() => {
+                      localStorage.removeItem("auth_token");
+                      window.location.replace("/");
+                    }}
+                    to={"logout"}
+                    className={
+                      "px-5 py-2 bg-secondary rounded-full text-center flex items-center gap-x-0 md:btn_secondary_rounded"
+                    }
+                  >
+                    <img src={user} alt="userIcon" height={15} width={15} />
+                    Logout
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to={"login"}
+                    className={
+                      "px-5 py-2 bg-secondary rounded-full text-center flex items-center gap-x-0 md:btn_secondary_rounded"
+                    }
+                  >
+                    <img src={user} alt="userIcon" height={15} width={15} />
+                    Login
+                  </NavLink>
+                )}
+
                 <label
                   htmlFor="check"
                   className={`relative flex w-14 h-8 rounded-full cursor-pointer transition-colors ${

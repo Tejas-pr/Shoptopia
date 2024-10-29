@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
-import all_products from "../assets/all_products";
 import Item from "../components/Item";
+import { ShopContext } from "../context/ShapContext";
 
 const Category = ({ category, banner }) => {
+  const { all_products } = useContext(ShopContext);
   return (
     <>
       <section className="mx-auto px-6 lg:px-20 py-12 xl:py-28 dark:bg-[#1E201E]">
@@ -13,13 +14,14 @@ const Category = ({ category, banner }) => {
           </div>
           <div>
             <h5 className="dark:text-white">
-              <span className="font-bold dark:text-white">Showing 1-12</span> out of 36 products
+              <span className="font-bold dark:text-white">Showing 1-12</span>{" "}
+              out of 36 products
             </h5>
             <div className="flexBetween max-sm:p-4 gap-x-4 px-8 py-3 mt-5 mb-10 rounded-5xl ring-1 ring-slate-900/15 dark:ring-slate-300/15 dark:text-white">
               Sort by <MdOutlineKeyboardArrowDown />{" "}
             </div>
           </div>
-          {/* container  */}
+
           <div className="grid grid-cols-1 xxs:grid-cols-2 xs:grid-cols-3 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {all_products.map((item) => {
               if (category === item.category) {

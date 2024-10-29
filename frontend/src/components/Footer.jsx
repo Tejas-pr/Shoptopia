@@ -32,7 +32,7 @@ const Footer = () => {
               </div>
               <div className="flex">
                 <FooterColumn>
-                  <ul className="flex gap-4 dark:bg-slate-600">
+                  <ul className="flex gap-4 ">
                     {SOCIALS.links.map((link) => (
                       <Link to={"/"} key={link}>
                         <img src={link} alt="socialIcon" height={22} width={22}/>

@@ -1,8 +1,14 @@
-import React from 'react'
-import LATEST from '../assets/latest'
-import Item from './Item'
+import React, { useEffect, useState } from "react";
+import Item from "./Item";
 
 const NewCollections = () => {
+  const [new_collection, setNew_collection] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/v1/newcollection`)
+      .then((res) => res.json())
+      .then((data) => setNew_collection(data));
+  }, []);
   return (
     <>
       <section className="bg-primary dark:bg-[#1E201E] dark:text-white">
@@ -11,7 +17,7 @@ const NewCollections = () => {
           <hr className="h-[3px] w-full md:w-1/2 mx-auto bg-gradient-to-l from-transparent via-black to-transparent dark:via-white mb-16" />
           {/* container */}
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {LATEST.map((item) => (
+            {new_collection.map((item) => (
               <Item
                 key={item.id}
                 id={item.id}
@@ -25,7 +31,7 @@ const NewCollections = () => {
         </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default NewCollections
+export default NewCollections;
