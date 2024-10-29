@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 const NewsLetter = () => {
   return (
@@ -9,7 +10,9 @@ const NewsLetter = () => {
           <h4 className="uppercase bold-18">Subscribe to our newsletter and stay updated</h4>
           <div className="flexBetween rounded-full ring-1 hover:ring-slate-900/10 bg-primary w-full max-w-[588px]">
             <input type="email" placeholder="Your email address" className="w-full bg-transparent ml-7 border-none outline-none regular-16 dark:text-black" />
-            <button className="btn_dark_rounded dark:">Subscribe</button>
+            <motion.div
+            whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.8 }}
+            ><button className="btn_dark_rounded dark:">Subscribe</button></motion.div>
           </div>
         </div>
       </section>

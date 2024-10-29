@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { MdStar } from "react-icons/md";
 import { ShopContext } from "../context/ShapContext";
+import { motion } from "framer-motion";
 const ProductDisplay = ({ product }) => {
   const { addToCart } = useContext(ShopContext);
   return (
@@ -66,9 +67,10 @@ const ProductDisplay = ({ product }) => {
                 </div>
               </div>
               <div className="flex flex-col gap-y-3 mb-4 max-w-[555px]">
-                <button 
-                    onClick={() => addToCart(product.id)}
-                className="btn_dark_outline !rounded-none uppercase regular-14 tracking-widest dark:text-white dark:hover:bg-white dark:hover:text-black">
+                <button
+                  onClick={() => addToCart(product.id)}
+                  className="btn_dark_outline !rounded-none uppercase regular-14 tracking-widest dark:text-white dark:hover:bg-white dark:hover:text-black"
+                >
                   Add to card
                 </button>
                 <button className="btn_dark_rounded !rounded-none uppercase regular-14 tracking-widest dark:bg-white dark:text-black">

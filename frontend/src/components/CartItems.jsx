@@ -6,7 +6,7 @@ const CartItems = () => {
   const { all_products, cartitems, removeFromCart, getTotalCartAmount } = useContext(ShopContext);
   return (
     <>
-      <section className="max_padd_container_No  pt-28 dark:bg-[#1E201E] dark:text-white">
+      <section className="max_padd_container_No p-28 dark:bg-[#1E201E] dark:text-white">
         <table className="w-full mx-auto ">
           <thead>
             <tr className="bg-slate-900/10 regular-18 sm:regular-22 text-start py-12 dark:bg-slate-100/10">

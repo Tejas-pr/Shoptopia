@@ -22,17 +22,18 @@ function App() {
 
   useEffect(() => {
     const hasVisited = localStorage.getItem("hasVisited");
+    setInterval(() => {
+      localStorage.setItem("hasVisited", "true");
+    }, 5000);
 
     if (hasVisited) {
       setToppage(false);
-    } else {
-      setToppage(true);
     }
   }, []);
 
   return (
     <>
-      {!showToppage ? ( // remember to change here
+      {showToppage ? (
         <Toppage setToppage={setToppage} />
       ) : (
         <main className={`${isOn ? "dark" : "bg-[#FAF7F0]"}`}>
@@ -40,9 +41,18 @@ function App() {
             <Header />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/mens" element={<Category category="men" banner={bannermens}/>} />
-              <Route path="/womens" element={<Category category="women" banner={bannerwomens}/>} />
-              <Route path="/kids" element={<Category category="kids" banner={bannerkids}/>} />
+              <Route
+                path="/mens"
+                element={<Category category="men" banner={bannermens} />}
+              />
+              <Route
+                path="/womens"
+                element={<Category category="women" banner={bannerwomens} />}
+              />
+              <Route
+                path="/kids"
+                element={<Category category="kids" banner={bannerkids} />}
+              />
               <Route path="/product" element={<Product />}>
                 <Route path=":productId" element={<Product />} />
               </Route>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,7 +31,7 @@ const Login = () => {
 
   const SignUpHandler = async () => {
     try {
-      console.log("inside handler signup")
+      console.log("inside handler signup");
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/v1/signup`,
         {
@@ -42,8 +43,8 @@ const Login = () => {
           body: JSON.stringify(formData),
         }
       );
-      console.log("inside handler signup11")
-      console.log(response)
+      console.log("inside handler signup11");
+      console.log(response);
       const responseData = await response.json();
 
       if (responseData.success) {
@@ -184,6 +185,10 @@ const Login = () => {
                 className="text-secondary underline cursor-pointer"
               >
                 {state === "Sign Up" ? "Login" : "Sign Up"}
+              </span>
+              {" / "}
+              <span className="text-gray-500 underline cursor-pointer">
+                <Link to={import.meta.env.VITE_ADMIN_URL}>Admin</Link>
               </span>
             </p>
           </form>
