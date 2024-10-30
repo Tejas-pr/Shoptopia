@@ -33,30 +33,39 @@ const AddProduct = () => {
     formData.append("product", image);
 
     try {
-      // Upload image
-      const uploadResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      const uploadResponse = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/v1/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       const responseData = await uploadResponse.json();
+      if (responseData.success == 0) {
+        toast.error(responseData.message);
+      }
 
       if (responseData.success) {
         product.image = responseData.image_url;
-
-        // Add product
-        const addProductResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/add-product`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(product),
-        });
+        const addProductResponse = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/v1/add-product`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(product),
+          }
+        );
         const result = await addProductResponse.json();
 
         result.success
           ? toast.success("Product added successfully")
           : toast.error("Product not added");
       } else {
+        if (!responseData.success) {
+          console.log();
+        }
         toast.error("Image upload failed");
       }
     } catch (error) {
@@ -67,7 +76,7 @@ const AddProduct = () => {
 
   return (
     <>
-      <ToastContainer autoClose={1200}/>
+      <ToastContainer autoClose={1200} />
       <div className="p-8 box-border bg-white w-full rounded-sm mt-4 lg:m-7">
         <div className="mb-3">
           <h4 className="bold-18 pb-2">Product title:</h4>

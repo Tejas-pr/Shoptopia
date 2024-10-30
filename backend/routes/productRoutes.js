@@ -3,46 +3,109 @@ const router = express.Router();
 const Product = require("../models/Products");
 const User = require("../models/User");
 const multer = require("multer");
+const multerS3 = require("multer-s3");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const authFetchUser = require("../middleware/authMiddleware");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
+const dotenv = require("dotenv");
+const {
+  S3Client,
+  ListObjectsV2Command,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+dotenv.config();
 
 const userSchema = z.object({
   username: z.string().min(3).max(20),
   email: z.string().email().min(3).max(30),
-  password: z.string().min(3).max(10)
-  .refine((val) => /[a-z]/.test(val), {
-    message: "Password must contain at least one lowercase letter.",
-  })
-  .refine((val) => /[A-Z]/.test(val), {
-    message: "Password must contain at least one uppercase letter.",
-  })
-  .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
-    message: "Password must contain at least one special character.",
-  }),
+  password: z
+    .string()
+    .min(3)
+    .max(10)
+    .refine(
+      (val) => /(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])/.test(val),
+      {
+        message:
+          "Password must contain lowercase, uppercase, and special character.",
+      }
+    ),
 });
 
 router.use("/images", express.static(path.join(__dirname, "uploads/images")));
-// Set up the image storage engine
-const storage = multer.diskStorage({
-  destination: "./uploads/images",
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
-const upload = multer({ storage: storage });
 
-// Route to upload images
-router.post("/upload", upload.single("product"), (req, res) => {
-  res.json({
-    success: 1,
-    image_url: `http://localhost:${process.env.PORT}/images/${req.file.filename}`,
-  });
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  region: process.env.AWS_REGION,
+});
+
+const upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: process.env.S3_BUCKET_NAME,
+    metadata: (req, file, cb) => cb(null, { fieldName: file.fieldname }),
+    key: (req, file, cb) =>
+      cb(null, `images/${Date.now()}_${file.originalname}`),
+  }),
+});
+
+// Route to upload an image to AWS
+router.post("/upload", upload.single("product"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: 0,
+        message: "Image upload failed. Please try again.",
+      });
+    }
+
+    const listParams = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Prefix: "images/",
+    };
+
+    const listedObjects = await s3.send(new ListObjectsV2Command(listParams));
+
+    const imageCount = listedObjects.Contents
+      ? listedObjects.Contents.length
+      : 0;
+
+    if (imageCount >= 100) {
+      return res.status(400).json({
+        success: 0,
+        message: "Upload limit reached. Delete images first.",
+      });
+    }
+
+    if (req.file.size > 2 * 1024 * 1024) {
+      const deleteParams = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: req.file.key,
+      };
+
+      await s3.send(new DeleteObjectCommand(deleteParams));
+
+      return res.status(400).json({
+        success: 0,
+        message: "Image size should be less than 2 MB.",
+      });
+    }
+
+    res.json({
+      success: 1,
+      image_url: req.file.location,
+    });
+  } catch (error) {
+    console.error("Error during image upload:", error);
+    res.status(500).json({
+      success: 0,
+      message: "An error occurred during image upload. Please try again later.",
+    });
+  }
 });
 
 // Route to add a new product
@@ -72,19 +135,18 @@ router.post("/add-product", async (req, res) => {
 router.post("/remove-product", async (req, res) => {
   try {
     const deletedProduct = await Product.findOneAndDelete({ id: req.body.id });
-    if (deletedProduct) {
-      res.json({
-        success: true,
-        message: `Product with ID ${req.body.id} removed`,
-      });
-    } else {
-      res.status(404).json({ success: false, message: "Product not found" });
+    if (!deletedProduct) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
+    res.json({
+      success: true,
+      message: `Product with ID ${req.body.id} removed`,
+    });
   } catch (error) {
     console.error("Error removing product:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to remove product" });
+    return handleError(res, "Failed to remove product");
   }
 });
 
@@ -223,20 +285,15 @@ router.get("/popular-products", async (req, res) => {
 // Add to cart
 router.post("/addtocart", authFetchUser, async (req, res) => {
   try {
-    const userData = await User.findOne({ _id: req.user.id });
-
-    userData.cartData[req.body.itemId] += 1;
     await User.findByIdAndUpdate(
-      { _id: req.user.id },
-      { cartData: userData.cartData }
+      req.user.id,
+      { $inc: { [`cartData.${req.body.itemId}`]: 1 } },
+      { new: true }
     );
-
-    return res.json({ message: "added to cart" });
+    res.json({ message: "Added to cart" });
   } catch (e) {
-    res.status(500).json({
-      error: true,
-      message: "Failed to add to cart",
-    });
+    console.error("Error adding to cart:", e);
+    return handleError(res, "Failed to add to cart");
   }
 });
 

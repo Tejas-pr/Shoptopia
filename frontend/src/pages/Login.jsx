@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,6 +7,7 @@ const Login = () => {
   const [state, setState] = useState("Sign Up");
   const [error, setError] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+  const [debounceFormData, setDebounceFormData] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -107,6 +108,13 @@ const Login = () => {
       toast.error("An unexpected error occurred. Please try again later.");
     }
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebounceFormData(formData);
+    }, 500);
+    return () => clearInterval(timeout);
+  }, [formData]);
 
   return (
     <>
