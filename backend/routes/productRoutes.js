@@ -232,7 +232,7 @@ router.post("/login", async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
-    const validPass = bcrypt.compare(password, user.password);
+    const validPass = await bcrypt.compare(password, user.password);
     if (validPass) {
       const data = {
         user: {
